@@ -46,44 +46,42 @@ def detect():
         draw = ImageDraw.Draw(img)
         detection_results = model(img)
 
-        # Initialize confidence scores
+        # Process detections
         detections = []
         infested = False
         max_infested_confidence = 0.0
         max_not_infested_confidence = 0.0
 
-        # Process detections
         for result in detection_results:
             boxes = result.boxes
-            if boxes is not None:  # Ensure boxes are not empty
-                for box in boxes:
-                    confidence = float(box.conf)
-                    x1, y1, x2, y2 = box.xyxy[0]
-                    detections.append({
-                        'x1': float(x1),
-                        'y1': float(y1),
-                        'x2': float(x2),
-                        'y2': float(y2),
-                        'confidence': confidence,
-                        'class': int(box.cls)  # Include class for clarity
-                    })
+            for box in boxes:
+                confidence = float(box.conf)
+                x1, y1, x2, y2 = box.xyxy[0]
+                detections.append({
+                    'x1': float(x1),
+                    'y1': float(y1),
+                    'x2': float(x2),
+                    'y2': float(y2),
+                    'confidence': confidence,
+                    'class': int(box.cls)  # Include class for clarity
+                })
 
-                    # Check if the detection is "infested" (class 0)
-                    if box.cls == 0:  # Assuming 0 is the "infested" class
-                        infested = True
-                        max_infested_confidence = max(max_infested_confidence, confidence)
-                    else:
-                        # Update "not infested" confidence
-                        max_not_infested_confidence = max(max_not_infested_confidence, confidence)
+                # Check if the detection is "infested" (class 0)
+                if box.cls == 0:  # Assuming 0 is the "infested" class
+                    infested = True
+                    max_infested_confidence = max(max_infested_confidence, confidence)
+                else:
+                    # Update "not infested" confidence
+                    max_not_infested_confidence = max(max_not_infested_confidence, confidence)
 
-                    # Draw bounding box
-                    color = "red" if box.cls == 0 else "green"
-                    draw.rectangle([x1, y1, x2, y2], outline=color, width=3)
-                    draw.text((x1, y1 - 10), f"{confidence:.2f}", fill=color)
+                # Draw bounding box
+                color = "red" if box.cls == 0 else "green"
+                draw.rectangle([x1, y1, x2, y2], outline=color, width=3)
+                draw.text((x1, y1 - 10), f"{confidence:.2f}", fill=color)
 
-        # Handle case where no detections are made
+        # Ensure confidence scores are valid
         if max_infested_confidence == 0.0 and max_not_infested_confidence == 0.0:
-            max_not_infested_confidence = 1.0  # Default to 100% confidence for "not infested"
+            max_not_infested_confidence = 1.0  # Default to 100% confidence for "not infested" if no detections
 
         # Convert image to base64
         buffered = BytesIO()

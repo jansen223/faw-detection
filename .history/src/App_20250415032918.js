@@ -115,11 +115,9 @@ function App() {
                 }}
               >
                 <Popup>
-                  {point.infested ? 'Infested Corn Plant' : 'Not Infested Corn Plant'}
+                  {point.infested ? 'Infested Area' : 'Healthy Area'}
                   <br />
-                  Infested Confidence: {(point.infested_confidence * 100).toFixed(1)}%
-                  <br />
-                  Not Infested Confidence: {(point.not_infested_confidence * 100).toFixed(1)}%
+                  Confidence: {(point.confidence * 100).toFixed(1)}%
                 </Popup>
               </Marker>
             ))}
